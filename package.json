@@ -10,14 +10,14 @@
     "port"
   ],
   "bin": {
-    "detect": "./bin/detect-port.js",
-    "detect-port": "./bin/detect-port.js"
+    "detect": "./dist/bin/detect-port.js",
+    "detect-port": "./dist/bin/detect-port.js"
   },
-  "main": "index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "files": [
-    "bin",
-    "lib",
-    "index.js"
+    "dist",
+    "src"
   ],
   "repository": {
     "type": "git",
@@ -27,6 +27,11 @@
     "address": "^1.0.1"
   },
   "devDependencies": {
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^22.10.2",
+    "@types/power-assert": "^1.5.12",
+    "@typescript-eslint/eslint-plugin": "^6.13.2",
+    "@typescript-eslint/parser": "^6.13.2",
     "command-line-test": "1",
     "egg-bin": "^5.2.0",
     "eslint": "^8.23.1",
@@ -34,12 +39,15 @@
     "git-contributor": "1",
     "mm": "^2.1.0",
     "pedding": "^1.1.0",
-    "power-assert": "^1.6.1"
+    "power-assert": "^1.6.1",
+    "typescript": "^5.7.2"
   },
   "scripts": {
-    "test": "egg-bin test",
-    "ci": "npm run lint && egg-bin cov",
-    "lint": "eslint .",
+    "build": "tsc",
+    "prepare": "npm run build",
+    "test": "npm run build && egg-bin test",
+    "ci": "npm run lint && npm run test",
+    "lint": "eslint . --ext .ts",
     "contributor": "git-contributor"
   },
   "engines": {

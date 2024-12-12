@@ -74,10 +74,24 @@ describe('test/detect-port.test.js', () => {
       // https://github.com/nodejs/node/blob/6af72d4b037eba38d94395f57a03a498a2efef09/lib/net.js#L1463
       // mock dns.lookup
       mm(dns, '__rawLookup', dns.lookup);
-      mm(dns, 'lookup', (address, callback) => {
-        if (address !== 'localhost') {
-          return dns.__rawLookup(address, callback);
+      mm(dns, 'lookup', function mockLookup(address, options, callback) {
+        // Handle both forms of dns.lookup:
+        // - dns.lookup(hostname, callback)
+        // - dns.lookup(hostname, options, callback)
+        if (typeof options === 'function') {
+          callback = options;
+          options = {};
         }
+
+        // Ensure callback exists
+        if (typeof callback !== 'function') {
+          throw new TypeError('The "callback" argument must be of type function');
+        }
+
+        if (address !== 'localhost') {
+          return dns.__rawLookup(address, options, callback);
+        }
+
         process.nextTick(() => {
           const err = new Error(`getaddrinfo ENOTFOUND ${address}`);
           err.code = 'ENOTFOUND';

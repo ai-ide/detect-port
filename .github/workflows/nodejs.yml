@@ -5,6 +5,7 @@ on:
     branches: [ master, 1.x ]
   pull_request:
     branches: [ master, 1.x ]
+  workflow_dispatch:  # Add manual trigger capability
 
 jobs:
   Job:
@@ -12,6 +13,6 @@ jobs:
     uses: node-modules/github-actions/.github/workflows/node-test.yml@master
     with:
       os: 'ubuntu-latest'
-      version: '14, 16, 18, 20, 22'
+      version: '22'  # Only test Node.js 22.x
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

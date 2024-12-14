@@ -1,17 +1,17 @@
 'use strict';
 
-const mm = require('mm');
-const dns = require('dns');
-const net = require('net');
-const pedding = require('pedding');
-const address = require('address');
-const assert = require('power-assert');
+import mm from 'mm';
+import dns from 'dns';
+import net from 'net';
+import pedding from 'pedding';
+import address from 'address';
+import assert from 'power-assert';
 
-const detectPort = require('..');
+import detectPort from '../index';
 
-describe('test/detect-port.test.js', () => {
+describe('test/detect-port.test.ts', () => {
   describe('detect port test', () => {
-    const servers = [];
+    const servers: net.Server[] = [];
     before(done => {
       done = pedding(13, done);
       const server = new net.Server();

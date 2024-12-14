@@ -13,11 +13,11 @@
     "detect": "./bin/detect-port.js",
     "detect-port": "./bin/detect-port.js"
   },
-  "main": "index.js",
+  "main": "index.ts",
   "files": [
     "bin",
     "lib",
-    "index.js"
+    "index.ts"
   ],
   "repository": {
     "type": "git",
@@ -34,13 +34,15 @@
     "git-contributor": "1",
     "mm": "^2.1.0",
     "pedding": "^1.1.0",
-    "power-assert": "^1.6.1"
+    "power-assert": "^1.6.1",
+    "typescript": "^4.5.4"
   },
   "scripts": {
     "test": "egg-bin test",
     "ci": "npm run lint && egg-bin cov",
     "lint": "eslint .",
-    "contributor": "git-contributor"
+    "contributor": "git-contributor",
+    "build": "tsc"
   },
   "engines": {
     "node": ">= 4.0.0"

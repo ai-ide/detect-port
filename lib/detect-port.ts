@@ -1,8 +1,16 @@
 'use strict';
 
-const net = require('net');
-const address = require('address');
-const debug = require('util').debuglog('detect-port');
+import net from 'net';
+import address from 'address';
+import { debuglog } from 'util';
+
+const debug = debuglog('detect-port');
+
+interface DetectPortOptions {
+  port: number;
+  hostname?: string;
+  callback?: (err: Error | null, port: number) => void;
+}
 
 /**
  * Detects an available port starting from the specified port number
@@ -10,21 +18,21 @@ const debug = require('util').debuglog('detect-port');
  * @param {function} [callback] - Optional callback function (port, callback)
  * @returns {Promise<number>|void} Returns a promise that resolves to the available port if no callback is provided
  */
-module.exports = (port, callback) => {
+export default function detectPort(port: number | DetectPortOptions | ((err: Error | null, port: number) => void), callback?: (err: Error | null, port: number) => void): Promise<number> | void {
   let hostname = '';
 
   if (typeof port === 'object' && port) {
-    hostname = port.hostname;
+    hostname = port.hostname || '';
     callback = port.callback;
     port = port.port;
   } else {
     if (typeof port === 'function') {
       callback = port;
-      port = null;
+      port = 0;
     }
   }
 
-  port = parseInt(port) || 0;
+  port = parseInt(port as string) || 0;
   let maxPort = port + 10;
   if (maxPort > 65535) {
     maxPort = 65535;
@@ -39,9 +47,9 @@ module.exports = (port, callback) => {
       resolve(realPort);
     });
   });
-};
+}
 
-function tryListen(port, maxPort, hostname, callback) {
+function tryListen(port: number, maxPort: number, hostname: string, callback: (err: Error | null, port: number) => void): void {
   function handleError() {
     port++;
     if (port >= maxPort) {
@@ -57,7 +65,7 @@ function tryListen(port, maxPort, hostname, callback) {
     listen(port, hostname, (err, realPort) => {
       if (err) {
         if (err.code === 'EADDRNOTAVAIL') {
-          return callback(new Error('the ip that is not unknown on the machine'));
+          return callback(new Error('the ip that is not unknown on the machine'), 0);
         }
         return handleError();
       }
@@ -66,20 +74,20 @@ function tryListen(port, maxPort, hostname, callback) {
     });
   } else {
     // 1. check null
-    listen(port, null, (err, realPort) => {
+    listen(port, '', (err, realPort) => {
       // ignore random listening
       if (port === 0) {
         return callback(err, realPort);
       }
 
       if (err) {
-        return handleError(err);
+        return handleError();
       }
 
       // 2. check 0.0.0.0
       listen(port, '0.0.0.0', err => {
         if (err) {
-          return handleError(err);
+          return handleError();
         }
 
         // 3. check localhost
@@ -87,13 +95,13 @@ function tryListen(port, maxPort, hostname, callback) {
           // if localhost refer to the ip that is not unkonwn on the machine, you will see the error EADDRNOTAVAIL
           // https://stackoverflow.com/questions/10809740/listen-eaddrnotavail-error-in-node-js
           if (err && err.code !== 'EADDRNOTAVAIL') {
-            return handleError(err);
+            return handleError();
           }
 
           // 4. check current ip
           listen(port, address.ip(), (err, realPort) => {
             if (err) {
-              return handleError(err);
+              return handleError();
             }
 
             callback(null, realPort);
@@ -104,7 +112,7 @@ function tryListen(port, maxPort, hostname, callback) {
   }
 }
 
-function listen(port, hostname, callback) {
+function listen(port: number, hostname: string, callback: (err: Error | null, port: number) => void): void {
   const server = new net.Server();
 
   server.on('error', err => {
@@ -114,11 +122,11 @@ function listen(port, hostname, callback) {
       debug('ignore dns ENOTFOUND error, get free %s:%s', hostname, port);
       return callback(null, port);
     }
-    return callback(err);
+    return callback(err, 0);
   });
 
   server.listen(port, hostname, () => {
-    port = server.address().port;
+    port = (server.address() as net.AddressInfo).port;
     server.close();
     debug('get free %s:%s', hostname, port);
     return callback(null, port);

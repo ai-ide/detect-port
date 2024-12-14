@@ -1,13 +1,12 @@
 'use strict';
 
-const mm = require('mm');
-const net = require('net');
+import mm from 'mm';
+import net from 'net';
+import { waitPort } from '../index';
 
-const { waitPort } = require('..');
-
-describe('test/wait-port.test.js', () => {
+describe('test/wait-port.test.ts', () => {
   describe('wait for port', () => {
-    const servers = [];
+    const servers: net.Server[] = [];
     after(() => {
       servers.forEach(server => server.close());
     });

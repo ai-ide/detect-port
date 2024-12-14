@@ -3,13 +3,18 @@
 const debug = require('util').debuglog('wait-port');
 const detect = require('./detect-port');
 
-const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-async function waitPort(port, options = {}) {
+interface WaitPortOptions {
+  retryInterval?: number;
+  retries?: number;
+}
+
+async function waitPort(port: number, options: WaitPortOptions = {}): Promise<boolean> {
   const { retryInterval = 1000, retries = Infinity } = options;
   let count = 1;
 
-  async function loop() {
+  async function loop(): Promise<boolean> {
     debug('retries', retries, 'count', count);
     if (count > retries) {
       const err = new Error('retries exceeded');

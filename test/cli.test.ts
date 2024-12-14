@@ -1,10 +1,10 @@
 'use strict';
 
-const path = require('path');
-const assert = require('assert');
-const CliTest = require('command-line-test');
+import path from 'path';
+import assert from 'assert';
+import CliTest from 'command-line-test';
 
-const pkg = require('../package');
+import pkg from '../package.json';
 
 const cliTest = new CliTest();
 const binFile = path.resolve(pkg.bin[pkg.name]);
